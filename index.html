@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 7: New Ways to Learn - English Platform</title>
+    <style>
+        :root {
+            --primary: #2563eb; --primary-light: #eff6ff; --primary-hover: #1d4ed8;
+            --secondary: #10b981; --secondary-hover: #059669;
+            --dark: #1e293b; --text-main: #334155; --text-light: #64748b;
+            --bg-body: #f8fafc; --bg-card: #ffffff; --border: #e2e8f0;
+            --danger: #ef4444; --warning: #f59e0b;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); line-height: 1.6; }
+
+        /* --- MODAL --- */
+        #api-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.8); display: flex; justify-content: center; align-items: center;
+            z-index: 1000; backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: var(--bg-card); padding: 2rem; border-radius: var(--radius);
+            width: 90%; max-width: 500px; box-shadow: var(--shadow); text-align: center;
+        }
+        .modal-content h2 { color: var(--primary); margin-bottom: 1rem; }
+        .modal-content p { margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-main); text-align: justify; }
+        .modal-content input {
+            width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;
+            margin-bottom: 1rem; font-size: 1rem; outline: none;
+        }
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: 600; transition: all 0.3s ease; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: #e2e8f0; color: var(--text-main); }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-success { background: var(--secondary); color: white; }
+        .btn-success:hover { background: var(--secondary-hover); }
+
+        /* --- HEADER --- */
+        header {
+            background: var(--bg-card); padding: 1rem 2rem; box-shadow: var(--shadow);
+            position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+        }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+        nav { display: flex; gap: 0.5rem; overflow-x: auto; }
+        .nav-btn {
+            background: none; border: none; padding: 10px 15px; font-size: 1rem;
+            color: var(--text-light); cursor: pointer; font-weight: 600;
+            border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap;
+        }
+        .nav-btn.active, .nav-btn:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* --- MAIN --- */
+        main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; min-height: 80vh; }
+        .section { display: none; animation: fadeIn 0.4s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background: var(--bg-card); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 2rem; }
+        h2.section-title { font-size: 1.8rem; color: var(--dark); margin-bottom: 1.5rem; border-bottom: 2px solid var(--primary-light); padding-bottom: 10px; }
+
+        /* --- VOCABULARY --- */
+        .vocab-category-title { font-size: 1.4rem; color: var(--secondary); margin: 1.5rem 0 1rem; padding-left: 10px; border-left: 4px solid var(--secondary); }
+        .vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+        .vocab-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; text-align: center; transition: transform 0.2s; background: var(--bg-body); }
+        .vocab-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--primary-light); }
+        .v-word { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
+        .v-pos { font-style: italic; color: #8b5cf6; font-size: 0.85rem; }
+        .v-phonetic { color: var(--text-light); margin-bottom: 8px; font-family: monospace; font-size: 0.9rem;}
+        .v-meaning { font-size: 1rem; color: var(--dark); margin-bottom: 10px; }
+        .audio-btn { background: var(--primary-light); color: var(--primary); border: none; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+
+        /* --- GRAMMAR --- */
+        .grammar-box { background: var(--primary-light); padding: 1.5rem; border-left: 5px solid var(--primary); border-radius: 0 var(--radius) var(--radius) 0; margin-bottom: 1.5rem; }
+        .grammar-box h3 { color: var(--primary); margin-bottom: 10px; }
+        .grammar-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+        .grammar-table th, .grammar-table td { border: 1px solid var(--border); padding: 12px; text-align: left; }
+        .grammar-table th { background: var(--bg-body); color: var(--dark); }
+        .vn-text { color: #047857; font-size: 0.95rem; font-style: italic; margin-top: 5px; }
+        .special-case { background: #fffbeb; border-left: 4px solid var(--warning); padding: 10px 15px; margin-top: 10px; border-radius: 4px; }
+
+        /* --- EXERCISES & FORMS --- */
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group input, .input-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; resize: vertical; }
+        .feedback { margin-top: 1rem; padding: 1.2rem; border-radius: 8px; display: none; background: #f1f5f9; border: 1px solid var(--border); }
+        .loader { display: none; color: var(--primary); font-weight: bold; margin: 10px 0; text-align: center; }
+        .score-box { font-size: 1.8rem; font-weight: 800; text-align: center; margin-bottom: 10px; }
+        .grade-excellent { color: var(--secondary); } .grade-good { color: var(--primary); } .grade-poor { color: var(--danger); }
+
+        /* --- READING --- */
+        .reading-passage { font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem; padding: 1.5rem; background: var(--bg-body); border: 1px solid var(--border); border-radius: var(--radius); text-align: justify;}
+        .question-block { margin-bottom: 1.5rem; background: white; padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius); }
+        .options-list { list-style: none; margin-top: 10px;}
+        .options-list li { margin-bottom: 8px; }
+        .options-list label { cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; transition: background 0.2s; }
+        .options-list label:hover { background: var(--primary-light); }
+
+        footer { text-align: center; padding: 2rem; color: var(--text-light); background: var(--bg-card); border-top: 1px solid var(--border); margin-top: 3rem; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .api-status { font-size: 0.85rem; padding: 5px 10px; border-radius: 20px; background: #e2e8f0; font-weight: 600;}
+        .api-active { background: #dcfce7; color: #166534; }
+    </style>
+
+    <!-- ============================================================== -->
+    <!-- BẮT ĐẦU PHẦN CSS THÊM VÀO ĐỂ CHỐNG BÔI ĐEN VÀ COPY NỘI DUNG    -->
+    <!-- ============================================================== -->
+    <style>
+        body {
+            /* Ngăn người dùng bôi đen văn bản trên trang */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        /* Ngoại lệ: Vẫn cho phép bôi đen/chỉnh sửa trong các ô input và textarea để người dùng làm bài */
+        input, textarea {
+            -webkit-user-select: text;
+            -khtml-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+    </style>
+    <!-- ============================================================== -->
+    <!-- KẾT THÚC PHẦN CSS THÊM VÀO                                     -->
+    <!-- ============================================================== -->
+
+</head>
+<body>
+
+    <div id="api-modal">
+        <div class="modal-content">
+            <h2>Welcome to English Platform</h2>
+            <p>Hệ thống sử dụng AI (Google Gemini) để tạo bài tập và chấm điểm. Vui lòng nhập API Key để sử dụng đầy đủ tính năng (trang web sẽ không lưu API key lên bất kì server hay trang web bên thứ 3).</p>
+            <p style="font-size: 0.85rem; color: #dc2626; margin-bottom: 15px;">
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #2563eb; text-decoration: underline;">👉 Nhấn vào đây để lấy API Key miễn phí từ Google</a>
+            </p>
+            <input type="password" id="api-key-input" placeholder="Nhập Gemini API Key tại đây...">
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn btn-secondary" onclick="skipAPI()">Bỏ qua (Chỉ xem lý thuyết)</button>
+                <button class="btn btn-primary" onclick="saveAPI()">Nhập API Key</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">Unit 7: New Ways to Learn</div>
+        <nav>
+            <button class="nav-btn active" onclick="switchTab('vocab')">Vocabulary</button>
+            <button class="nav-btn" onclick="switchTab('grammar')">Grammar</button>
+            <button class="nav-btn" onclick="switchTab('reading')">Reading</button>
+            <button class="nav-btn" onclick="switchTab('writing')">Writing</button>
+            <button class="nav-btn" onclick="switchTab('practice')">Practice</button>
+        </nav>
+        <div id="api-status-badge" class="api-status">API: Not Connected</div>
+    </header>
+
+    <main>
+        <!-- VOCABULARY SECTION -->
+        <section id="vocab" class="section active">
+            <div class="card">
+                <h2 class="section-title">Vocabulary (Từ vựng)</h2>
+                <div class="vn-text mb-4">Hơn 100 từ vựng trọng tâm Unit 7, nhấn nút "Listen" để nghe phát âm chuẩn Anh-Anh.</div>
+                <div id="vocab-container"></div>
+            </div>
+        </section>
+
+        <!-- GRAMMAR SECTION -->
+        <section id="grammar" class="section">
+            <div class="card">
+                <h2 class="section-title">Grammar (Ngữ pháp)</h2>
+                
+                <div class="grammar-box">
+                    <h3>1. The Passive Voice (Câu bị động)</h3>
+                    <p><strong>Cách dùng cơ bản:</strong> Dùng khi nhấn mạnh vào <em>đối tượng chịu tác động</em>, hoặc khi không biết/không quan trọng người thực hiện hành động là ai.</p>
+                    <div class="vn-text mb-4">Công thức chung: S + be + V3/ed + (by O)</div>
+                    
+                    <table class="grammar-table">
+                        <tr><th>Tense</th><th>Active</th><th>Passive</th></tr>
+                        <tr><td>Present Simple</td><td>They <strong>use</strong> tablets.</td><td>Tablets <strong>are used</strong>.</td></tr>
+                        <tr><td>Past Simple</td><td>He <strong>invented</strong> the app.</td><td>The app <strong>was invented</strong> (by him).</td></tr>
+                        <tr><td>Present Continuous</td><td>They <strong>are upgrading</strong> the system.</td><td>The system <strong>is being upgraded</strong>.</td></tr>
+                        <tr><td>Present Perfect</td><td>She <strong>has finished</strong> the course.</td><td>The course <strong>has been finished</strong>.</td></tr>
+                        <tr><td>Modals (can, must...)</td><td>We <strong>must submit</strong> it.</td><td>It <strong>must be submitted</strong>.</td></tr>
+                    </table>
+
+                    <h4 style="margin-top: 20px; color: var(--dark);">🔥 CÁC TRƯỜNG HỢP ĐẶC BIỆT (Special Cases):</h4>
+                    
+                    <div class="special-case">
+                        <strong>1. Động từ có 2 tân ngữ (give, send, show, buy...)</strong><br>
+                        Active: They gave <u>him</u> <u>a scholarship</u>.<br>
+                        Passive 1 (Ưu tiên): <strong>He</strong> was given a scholarship.<br>
+                        Passive 2: <strong>A scholarship</strong> was given <strong>to</strong> him.
+                    </div>
+
+                    <div class="special-case">
+                        <strong>2. Cấu trúc nhờ vả (Causative Form)</strong><br>
+                        <span class="vn-text">Dùng khi bạn nhờ/thuê người khác làm việc gì đó cho mình.</span><br>
+                        Công thức: <strong>S + have / get + O (vật) + V3/ed + (by O người)</strong><br>
+                        VD: I <strong>had my laptop repaired</strong> yesterday. <em>(Tôi đã nhờ người sửa laptop)</em>
+                    </div>
+
+                    <div class="special-case">
+                        <strong>3. Bị động với động từ chỉ quan điểm/ý kiến (say, think, believe, report...)</strong><br>
+                        Active: People say that online learning is effective.<br>
+                        Passive 1: <strong>It is said that</strong> online learning is effective.<br>
+                        Passive 2: <strong>Online learning is said to be</strong> effective.
+                    </div>
+
+                    <div class="special-case">
+                        <strong>4. Cấu trúc Need (Cần được làm gì)</strong><br>
+                        Công thức: <strong>S (vật) + need + V-ing</strong>  hoặc <strong>S + need + to be V3/ed</strong><br>
+                        VD: This software <strong>needs updating</strong>. = This software <strong>needs to be updated</strong>.
+                    </div>
+                </div>
+
+                <div class="grammar-box">
+                    <h3>2. Making Suggestions (Đưa ra lời đề nghị)</h3>
+                    <p><strong>Cách đưa ra lời khuyên/gợi ý:</strong></p>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>Let's + V-inf:</strong> Let's use educational apps.</li>
+                        <li><strong>How about / What about + V-ing/Noun?:</strong> How about joining a virtual class?</li>
+                        <li><strong>Why don't we/you + V-inf?:</strong> Why don't you try this dictionary?</li>
+                        <li><strong>I suggest + V-ing:</strong> I suggest taking online quizzes.</li>
+                        <li><strong>I suggest (that) S + (should) + V-inf:</strong> I suggest that he should buy a tablet.</li>
+                        <li><span style="color:var(--danger)">Đặc biệt:</span> <strong>S + had better + V-inf</strong> (Tốt hơn hết nên làm gì): You had better update the app.</li>
+                    </ul>
+
+                    <div class="special-case" style="border-left-color: var(--secondary);">
+                        <strong>💡 Cách đáp lại lời đề nghị (Responding to suggestions):</strong><br>
+                        - <em>Đồng ý (Agree):</em> That's a great idea! / Sounds good to me. / I couldn't agree more. / Let's do that.<br>
+                        - <em>Từ chối khéo (Disagree):</em> I'm not sure about that. / I'd rather not. / Perhaps we could do something else.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- READING SECTION -->
+        <section id="reading" class="section">
+            <div class="card">
+                <div class="flex-between mb-4">
+                    <h2 class="section-title" style="margin:0; border:none;">Reading Comprehension</h2>
+                    <button class="btn btn-success" onclick="generateNewReading()">🔄 Generate New Reading (AI)</button>
+                </div>
+                <div class="vn-text mb-4">Bấm "Generate" để AI tạo ra bài đọc mới.</div>
+                
+                <div id="reading-loader" class="loader">AI is writing a comprehensive reading passage...</div>
+                
+                <div id="reading-content-area" style="display:none;">
+                    <div class="reading-passage" id="reading-text"></div>
+                    <h3>Multiple Choice Questions</h3>
+                    <div id="mcq-container"></div>
+                    <h3 style="margin-top: 2rem;">True / False Questions</h3>
+                    <div id="tf-container"></div>
+                    <button class="btn btn-primary" style="margin-top: 1rem;" onclick="checkReadingAnswers()">Submit Answers</button>
+                    <div id="reading-score" class="feedback score-box"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WRITING SECTION -->
+        <section id="writing" class="section">
+            <div class="card">
+                <div class="flex-between mb-4">
+                    <h2 class="section-title" style="margin:0; border:none;">Writing Practice</h2>
+                    <button class="btn btn-success" onclick="generateWritingTopicAI()">🔄 Generate New Topic (AI)</button>
+                </div>
+                <div class="vn-text mb-4">Chủ đề được tạo ngẫu nhiên theo độ khó. Phần nhận xét sẽ được viết bằng tiếng Việt.</div>
+                
+                <div id="writing-topic-loader" class="loader">AI is thinking of a new writing prompt...</div>
+
+                <div class="grammar-box" id="writing-prompt-box" style="background: white; border: 1px solid var(--border);">
+                    <h3 style="color: var(--dark);">Topic:</h3>
+                    <p id="writing-topic" style="font-size: 1.1rem; font-weight: 600;">Click 'Generate New Topic' to begin.</p>
+                    
+                    <button class="btn btn-secondary" style="margin-top: 10px; font-size: 0.9rem;" onclick="toggleSample()">👁️ View Sample Idea (Do not copy!)</button>
+                    <div id="writing-sample" style="display: none; margin-top: 10px; padding: 15px; background: var(--bg-body); font-style: italic; border-radius: 8px; border-left: 3px solid var(--warning);"></div>
+                </div>
+
+                <div class="input-group">
+                    <label>Your Essay:</label>
+                    <textarea id="user-essay" rows="10" placeholder="Start writing here... (Aim for 120-150 words)"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="gradeWriting()">🤖 Submit & Grade with AI</button>
+                <div id="writing-loader" class="loader">AI is grading your writing...</div>
+                <div id="writing-feedback" class="feedback"></div>
+            </div>
+        </section>
+
+        <!-- PRACTICE SECTION -->
+        <section id="practice" class="section">
+            <!-- REWRITE -->
+            <div class="card">
+                <div class="flex-between mb-4">
+                    <h2 class="section-title" style="margin:0; border:none;">Sentence Transformation (Rewrite)</h2>
+                    <button class="btn btn-success" onclick="generateRewriteExercises()">🔄 Generate New Questions (AI)</button>
+                </div>
+                <div class="vn-text" style="margin-bottom: 1rem;">Chủ đề: Câu bị động (Bao gồm các trường hợp đặc biệt). Đề sẽ được tạo ngẫu nhiên, không trùng lặp. AI sẽ nhận xét bằng Tiếng Việt.</div>
+                
+                <div id="rewrite-loader" class="loader">AI is creating challenging rewrite exercises...</div>
+                <div id="rewrite-container"></div>
+                <button class="btn btn-primary" id="btn-submit-rewrite" onclick="gradeRewrites()" style="margin-top: 15px; display: none;">🤖 Submit & Grade Rewrites</button>
+                <div id="rewrite-global-feedback" class="feedback"></div>
+            </div>
+
+            <!-- QUIZ -->
+            <div class="card">
+                <div class="flex-between mb-4">
+                    <h2 class="section-title" style="margin:0; border:none;">Grammar & Vocab Quiz</h2>
+                    <button class="btn btn-success" onclick="generateNewQuiz()">🔄 Generate New Quiz (AI)</button>
+                </div>
+                <div class="vn-text mb-4">Trắc nghiệm tổng hợp Unit 7. Đề tạo ngẫu nhiên.</div>
+
+                <div id="quiz-loader" class="loader">AI is preparing the quiz...</div>
+                <div id="quiz-container"></div>
+                <button class="btn btn-primary" id="btn-submit-quiz" onclick="gradeQuiz()" style="display:none; margin-top: 15px;">Check Quiz Answers</button>
+                <div id="quiz-feedback" class="feedback score-box" style="text-align: left; font-size: 1.2rem;"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>English Learning Platform - Unit 7: New Ways to Learn</p>
+        <p style="margin-top: 10px; font-weight: 600; color: var(--primary);">
+            <a href="https://www.facebook.com/IamnobBG/" target="_blank" style="text-decoration: none; color: inherit;">Created by BaThach-10TI</a>
+        </p>
+    </footer>
+
+<script>
+    // --- GLOBAL VARIABLES & API SETUP ---
+    let apiKey = localStorage.getItem('gemini_api_key') || '';
+    let hasAPI = !!apiKey;
+
+    const AI_MODELS =[
+        'gemini-2.5-flash',
+        'gemini-2.5-flash-lite-preview',
+        'gemini-2.5-pro',
+        'gemini-3.1-flash-lite-preview',
+        'gemini-3.1-flash-live-preview',
+        'gemini-3.1-pro-preview'
+    ];
+
+    // Tracking histories to prevent duplication
+    let historyReadingTopics = [];
+    let historyWritingTopics =[];
+    let historyRewrites = [];
+    let historyQuiz =[];
+
+    window.onload = () => {
+        if (!hasAPI) { document.getElementById('api-modal').style.display = 'flex'; } 
+        else { updateAPIStatus(true); }
+        renderVocab();
+        // Generate initial content if API exists
+        if(hasAPI) {
+            generateNewReading();
+            generateWritingTopicAI();
+            generateRewriteExercises();
+            generateNewQuiz();
+        }
+    };
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function saveAPI() {
+        const key = document.getElementById('api-key-input').value.trim();
+        if (key) {
+            localStorage.setItem('gemini_api_key', key);
+            apiKey = key; hasAPI = true;
+            document.getElementById('api-modal').style.display = 'none';
+            updateAPIStatus(true);
+            generateNewReading(); generateWritingTopicAI(); generateRewriteExercises(); generateNewQuiz();
+            alert("Đã lưu API Key! Các tính năng AI đã được kích hoạt.");
+        }
+    }
+
+    function skipAPI() {
+        hasAPI = false; document.getElementById('api-modal').style.display = 'none'; updateAPIStatus(false);
+        alert("Tính năng tự động tạo đề và chấm điểm yêu cầu API Key. Bạn chỉ có thể xem lý thuyết từ vựng, ngữ pháp.");
+    }
+
+    function updateAPIStatus(isActive) {
+        const badge = document.getElementById('api-status-badge');
+        if (isActive) { badge.textContent = "API: Connected"; badge.classList.add('api-active'); } 
+        else { badge.textContent = "API: Offline Mode"; badge.classList.remove('api-active'); }
+    }
+
+    async function callGemini(prompt) {
+        if (!hasAPI) throw new Error("Vui lòng tải lại trang và nhập API Key để sử dụng.");
+        let lastError = null;
+        for (const model of AI_MODELS) {
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents:[{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.8 } })
+                });
+                if (!response.ok) throw new Error(`Model ${model} failed`);
+                const data = await response.json();
+                if (data.candidates && data.candidates[0].content.parts[0].text) return data.candidates[0].content.parts[0].text;
+            } catch (error) { lastError = error; }
+        }
+        throw new Error("API Limit hoặc Lỗi mạng. Vui lòng thử lại sau. (" + lastError?.message + ")");
+    }
+
+    function extractJSON(str) {
+        const match = str.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+        return match ? match[0] : str;
+    }
+
+    // --- VOCABULARY DATA (Over 110 words) ---
+    const vocabData = {
+        nouns:[
+            { w: "online education", p: "/ˈɒnlaɪn ˌedjʊˈkeɪʃn/", m: "giáo dục trực tuyến" },
+            { w: "distance learning", p: "/ˈdɪstəns ˈlɜːnɪŋ/", m: "học từ xa" },
+            { w: "blended learning", p: "/ˈblendɪd ˈlɜːnɪŋ/", m: "học tập kết hợp (trực tiếp + online)" },
+            { w: "lifelong learning", p: "/ˌlaɪflɒŋ ˈlɜːnɪŋ/", m: "học tập suốt đời" },
+            { w: "digital native", p: "/ˈdɪdʒɪtl ˈneɪtɪv/", m: "người sinh ra trong thời đại số" },
+            { w: "digital assistant", p: "/ˈdɪdʒɪtl əˈsɪstənt/", m: "trợ lý ảo (Siri, Alexa...)" },
+            { w: "application (app)", p: "/ˌæplɪˈkeɪʃn/", m: "ứng dụng phần mềm" },
+            { w: "smartphone", p: "/ˈsmɑːtfəʊn/", m: "điện thoại thông minh" },
+            { w: "tablet", p: "/ˈtæblət/", m: "máy tính bảng" },
+            { w: "hardware", p: "/ˈhɑːdweə(r)/", m: "phần cứng thiết bị" },
+            { w: "software", p: "/ˈsɒftweə(r)/", m: "phần mềm" },
+            { w: "touchscreen", p: "/ˈtʌtʃskriːn/", m: "màn hình cảm ứng" },
+            { w: "search engine", p: "/ˈsɜːtʃ endʒɪn/", m: "công cụ tìm kiếm" },
+            { w: "browser", p: "/ˈbraʊzə(r)/", m: "trình duyệt web" },
+            { w: "assignment", p: "/əˈsaɪnmənt/", m: "bài tập về nhà, nhiệm vụ" },
+            { w: "feedback", p: "/ˈfiːdbæk/", m: "phản hồi, nhận xét" },
+            { w: "material", p: "/məˈtɪəriəl/", m: "tài liệu học tập" },
+            { w: "instruction", p: "/ɪnˈstrʌkʃn/", m: "sự hướng dẫn" },
+            { w: "cyberbullying", p: "/ˈsaɪbəbʊliɪŋ/", m: "bắt nạt trên mạng" },
+            { w: "multimedia", p: "/ˌmʌltiˈmiːdiə/", m: "đa phương tiện" },
+            { w: "platform", p: "/ˈplætfɔːm/", m: "nền tảng (ứng dụng, web)" },
+            { w: "forum", p: "/ˈfɔːrəm/", m: "diễn đàn trực tuyến" },
+            { w: "benefit", p: "/ˈbenɪfɪt/", m: "lợi ích" },
+            { w: "drawback", p: "/ˈdrɔːbæk/", m: "mặt hạn chế, bất lợi" },
+            { w: "distraction", p: "/dɪˈstrækʃn/", m: "sự xao nhãng" },
+            { w: "syllabus", p: "/ˈsɪləbəs/", m: "đề cương khóa học" },
+            { w: "credential", p: "/krəˈdenʃl/", m: "chứng chỉ, bằng cấp" },
+            { w: "virtual classroom", p: "/ˈvɜːtʃuəl ˈklɑːsruːm/", m: "lớp học ảo" },
+            { w: "interactive whiteboard", p: "/ˌɪntərˈæktɪv ˈwaɪtbɔːd/", m: "bảng trắng tương tác" },
+            { w: "podcast", p: "/ˈpɒdkɑːst/", m: "chương trình phát thanh web" },
+            { w: "webinar", p: "/ˈwebɪnɑː(r)/", m: "hội thảo trực tuyến" },
+            { w: "tutorial", p: "/tjuːˈtɔːriəl/", m: "bài hướng dẫn" },
+            { w: "algorithm", p: "/ˈælɡərɪðəm/", m: "thuật toán" },
+            { w: "broadband", p: "/ˈbrɔːdbænd/", m: "băng thông rộng" },
+            { w: "cyberspace", p: "/ˈsaɪbəspeɪs/", m: "không gian mạng" },
+            { w: "database", p: "/ˈdeɪtəbeɪs/", m: "cơ sở dữ liệu" },
+            { w: "device", p: "/dɪˈvaɪs/", m: "thiết bị" },
+            { w: "gadget", p: "/ˈɡædʒɪt/", m: "thiết bị điện tử nhỏ tiện ích" },
+            { w: "interface", p: "/ˈɪntəfeɪs/", m: "giao diện" },
+            { w: "network", p: "/ˈnetwɜːk/", m: "mạng lưới" },
+            { w: "password", p: "/ˈpɑːswɜːd/", m: "mật khẩu" },
+            { w: "privacy", p: "/ˈprɪvəsi/", m: "sự riêng tư" },
+            { w: "screen time", p: "/skriːn taɪm/", m: "thời gian sử dụng màn hình" },
+            { w: "simulation", p: "/ˌsɪmjuˈleɪʃn/", m: "sự mô phỏng" },
+            { w: "spreadsheet", p: "/ˈspredʃiːt/", m: "bảng tính" },
+            { w: "hyperlink", p: "/ˈhaɪpəlɪŋk/", m: "siêu liên kết" },
+            { w: "webcam", p: "/ˈwebkæm/", m: "camera web" },
+            { w: "microphone", p: "/ˈmaɪkrəfəʊn/", m: "mic thu âm" },
+            { w: "stylus", p: "/ˈstaɪləs/", m: "bút cảm ứng" },
+            { w: "e-book", p: "/ˈiː bʊk/", m: "sách điện tử" },
+            { w: "projector", p: "/prəˈdʒektə(r)/", m: "máy chiếu" }
+        ],
+        verbs:[
+            { w: "access", p: "/ˈækses/", m: "truy cập, tiếp cận" },
+            { w: "navigate", p: "/ˈnævɪɡeɪt/", m: "điều hướng, duyệt web" },
+            { w: "download", p: "/ˌdaʊnˈləʊd/", m: "tải xuống" },
+            { w: "upload", p: "/ˌʌpˈləʊd/", m: "tải lên" },
+            { w: "submit", p: "/səbˈmɪt/", m: "nộp (bài)" },
+            { w: "grade", p: "/ɡreɪd/", m: "chấm điểm" },
+            { w: "participate", p: "/pɑːˈtɪsɪpeɪt/", m: "tham gia (= take part in)" },
+            { w: "concentrate", p: "/ˈkɒnsntreɪt/", m: "tập trung (= focus)" },
+            { w: "record", p: "/rɪˈkɔːd/", m: "ghi âm, ghi hình" },
+            { w: "store", p: "/stɔː(r)/", m: "lưu trữ" },
+            { w: "install", p: "/ɪnˈstɔːl/", m: "cài đặt (phần mềm)" },
+            { w: "update", p: "/ˌʌpˈdeɪt/", m: "cập nhật" },
+            { w: "incorporate", p: "/ɪnˈkɔːpəreɪt/", m: "kết hợp, sáp nhập" },
+            { w: "interact", p: "/ˌɪntərˈækt/", m: "tương tác" },
+            { w: "evaluate", p: "/ɪˈvæljueɪt/", m: "đánh giá" },
+            { w: "browse", p: "/braʊz/", m: "lướt web" },
+            { w: "collaborate", p: "/kəˈlæbəreɪt/", m: "cộng tác" },
+            { w: "compute", p: "/kəmˈpjuːt/", m: "tính toán (bằng máy tính)" },
+            { w: "connect", p: "/kəˈnekt/", m: "kết nối" },
+            { w: "customize", p: "/ˈkʌstəmaɪz/", m: "tùy chỉnh" },
+            { w: "digitize", p: "/ˈdɪdʒɪtaɪz/", m: "số hóa" },
+            { w: "enroll", p: "/ɪnˈrəʊl/", m: "đăng ký (khóa học)" },
+            { w: "facilitate", p: "/fəˈsɪlɪteɪt/", m: "tạo điều kiện thuận lợi" },
+            { w: "integrate", p: "/ˈɪntɪɡreɪt/", m: "tích hợp" },
+            { w: "log in", p: "/lɒɡ ɪn/", m: "đăng nhập" },
+            { w: "log out", p: "/lɒɡ aʊt/", m: "đăng xuất" },
+            { w: "program", p: "/ˈprəʊɡræm/", m: "lập trình" },
+            { w: "stream", p: "/striːm/", m: "phát trực tuyến" },
+            { w: "subscribe", p: "/səbˈskraɪb/", m: "đăng ký theo dõi" },
+            { w: "verify", p: "/ˈverɪfaɪ/", m: "xác minh" },
+            { w: "plug in", p: "/plʌɡ ɪn/", m: "cắm điện/thiết bị" },
+            { w: "unplug", p: "/ˌʌnˈplʌɡ/", m: "rút phích cắm" },
+            { w: "boot up", p: "/buːt ʌp/", m: "khởi động máy" },
+            { w: "shut down", p: "/ʃʌt daʊn/", m: "tắt máy" }
+        ],
+        adjectives:[
+            { w: "virtual", p: "/ˈvɜːtʃuəl/", m: "ảo, thực tế ảo" },
+            { w: "interactive", p: "/ˌɪntərˈæktɪv/", m: "có tính tương tác" },
+            { w: "convenient", p: "/kənˈviːniənt/", m: "tiện lợi" },
+            { w: "effective", p: "/ɪˈfektɪv/", m: "hiệu quả" },
+            { w: "traditional", p: "/trəˈdɪʃənl/", m: "truyền thống" },
+            { w: "distracted", p: "/dɪˈstræktɪd/", m: "bị xao nhãng" },
+            { w: "self-paced", p: "/ˌself ˈpeɪst/", m: "theo nhịp độ cá nhân" },
+            { w: "portable", p: "/ˈpɔːtəbl/", m: "dễ mang theo, xách tay" },
+            { w: "engaging", p: "/ɪnˈɡeɪdʒɪŋ/", m: "lôi cuốn, hấp dẫn" },
+            { w: "digital", p: "/ˈdɪdʒɪtl/", m: "thuộc kỹ thuật số" },
+            { w: "asynchronous", p: "/eɪˈsɪŋkrənəs/", m: "không đồng bộ" },
+            { w: "synchronous", p: "/ˈsɪŋkrənəs/", m: "đồng bộ (cùng lúc)" },
+            { w: "computer-literate", p: "/kəmˌpjuːtə ˈlɪtərət/", m: "thành thạo tin học" },
+            { w: "educational", p: "/ˌedʒuˈkeɪʃənl/", m: "mang tính giáo dục" },
+            { w: "global", p: "/ˈɡləʊbl/", m: "toàn cầu" },
+            { w: "high-tech", p: "/ˌhaɪ ˈtek/", m: "công nghệ cao" },
+            { w: "innovative", p: "/ˈɪnəvətɪv/", m: "đổi mới, sáng tạo" },
+            { w: "online", p: "/ˌɒnˈlaɪn/", m: "trực tuyến" },
+            { w: "offline", p: "/ˌɒfˈlaɪn/", m: "ngoại tuyến" },
+            { w: "remote", p: "/rɪˈməʊt/", m: "từ xa" },
+            { w: "user-friendly", p: "/ˌjuːzə ˈfrendli/", m: "thân thiện với người dùng" },
+            { w: "wireless", p: "/ˈwaɪələs/", m: "không dây" },
+            { w: "adaptable", p: "/əˈdæptəbl/", m: "có thể thích nghi" },
+            { w: "cutting-edge", p: "/ˌkʌtɪŋ ˈedʒ/", m: "hiện đại nhất, tiên tiến nhất" }
+        ],
+        phrases:[
+            { w: "face-to-face", p: "/ˌfeɪs tə ˈfeɪs/", m: "trực tiếp (mặt đối mặt)" },
+            { w: "take advantage of", p: "/teɪk ədˈvɑːntɪdʒ əv/", m: "tận dụng" },
+            { w: "keep in touch", p: "/kiːp ɪn tʌtʃ/", m: "giữ liên lạc" },
+            { w: "look something up", p: "/lʊk ʌp/", m: "tra cứu thông tin" },
+            { w: "surf the net", p: "/sɜːf ðə net/", m: "lướt web" },
+            { w: "back up data", p: "/bæk ʌp ˈdeɪtə/", m: "sao lưu dữ liệu" },
+            { w: "pop up", p: "/pɒp ʌp/", m: "hiện lên (cửa sổ quảng cáo)" },
+            { w: "go online", p: "/ɡəʊ ˌɒnˈlaɪn/", m: "lên mạng" },
+            { w: "go offline", p: "/ɡəʊ ˌɒfˈlaɪn/", m: "ngắt kết nối mạng" }
+        ]
+    };
+
+    function renderVocab() {
+        const container = document.getElementById('vocab-container');
+        let html = '';
+        const categories = { nouns: "Nouns (Danh từ)", verbs: "Verbs (Động từ)", adjectives: "Adjectives (Tính từ)", phrases: "Phrases / Others (Cụm từ)" };
+        
+        for (const [key, title] of Object.entries(categories)) {
+            html += `<h3 class="vocab-category-title">${title}</h3><div class="vocab-grid">`;
+            html += vocabData[key].map(v => `
+                <div class="vocab-card">
+                    <div class="v-word">${v.w}</div>
+                    <div class="v-phonetic">${v.p}</div>
+                    <div class="v-meaning">${v.m}</div>
+                    <button class="audio-btn" onclick="speakWord('${v.w}')">🔊 Listen</button>
+                </div>
+            `).join('');
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function speakWord(text) {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'en-GB'; window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // --- READING SECTION ---
+    let currentReadingData = null;
+
+    async function generateNewReading() {
+        if (!hasAPI) return;
+        const loader = document.getElementById('reading-loader');
+        const contentArea = document.getElementById('reading-content-area');
+        
+        loader.style.display = 'block'; contentArea.style.display = 'none';
+        document.getElementById('reading-score').style.display = 'none';
+
+        const subTopics =[ 
+            "The impact of Artificial Intelligence on personalized learning", 
+            "How gamification makes learning languages more effective", 
+            "The negative effects of excessive screen time on students", 
+            "Using Virtual Reality (VR) for historical field trips", 
+            "The rise of micro-learning applications in the modern world", 
+            "Bridging the digital divide: Access to internet in rural schools",
+            "The future of traditional textbooks in the digital age"
+        ];
+        const randomTopic = subTopics[Math.floor(Math.random() * subTopics.length)];
+        
+        const historyStr = historyReadingTopics.join(", ");
+        
+        const prompt = `Write an English reading passage (level B1, length 250-350 words, 3 to 4 paragraphs) about Unit 7: Technology in Education. 
+        Topic focus: "${randomTopic}". 
+        IMPORTANT: Do NOT write about these topics I already used: [${historyStr}]. Make the content totally fresh.
+        Then provide exactly 6 multiple choice questions (A, B, C, D) and 4 True/False questions based on the text.
+        Output MUST be STRICTLY in JSON format:
+        {
+            "topic_used": "short description of topic",
+            "title": "Passage Title",
+            "content": "Para 1<br><br>Para 2...",
+            "mcqs":[ { "q": "...", "options":["A. .", "B. .", "C. .", "D. ."], "ans": 0 } ],
+            "tf":[ { "q": "...", "ans": "True" } ]
+        }
+        Do not use Markdown blocks like \`\`\`json.`;
+
+        try {
+            const rawRes = await callGemini(prompt);
+            const data = JSON.parse(extractJSON(rawRes));
+            
+            historyReadingTopics.push(data.topic_used); 
+            if(historyReadingTopics.length > 5) historyReadingTopics.shift();
+
+            document.getElementById('reading-text').innerHTML = `<strong>${data.title}</strong><br><br>${data.content}`;
+            
+            document.getElementById('mcq-container').innerHTML = data.mcqs.map((q, i) => `
+                <div class="question-block">
+                    <p>${i + 1}. ${q.q}</p>
+                    <ul class="options-list">
+                        ${q.options.map((opt, j) => `<li><label><input type="radio" name="mcq-${i}" value="${j}"> ${opt}</label></li>`).join('')}
+                    </ul>
+                </div>`).join('');
+
+            document.getElementById('tf-container').innerHTML = data.tf.map((q, i) => `
+                <div class="question-block">
+                    <p>${i + 1 + data.mcqs.length}. ${q.q}</p>
+                    <ul class="options-list">
+                        <li><label><input type="radio" name="tf-${i}" value="True"> True</label></li>
+                        <li><label><input type="radio" name="tf-${i}" value="False"> False</label></li>
+                    </ul>
+                </div>`).join('');
+            
+            currentReadingData = data;
+            contentArea.style.display = 'block';
+        } catch (e) {
+            console.error(e); loader.innerHTML = "Lỗi tạo bài đọc. Hãy bấm nút tạo lại.";
+        } finally {
+            if(currentReadingData) loader.style.display = 'none';
+        }
+    }
+
+    function checkReadingAnswers() {
+        let score = 0;
+        let total = currentReadingData.mcqs.length + currentReadingData.tf.length;
+
+        currentReadingData.mcqs.forEach((q, i) => {
+            const selected = document.querySelector(`input[name="mcq-${i}"]:checked`);
+            const block = document.querySelector(`input[name="mcq-${i}"]`)?.closest('.question-block');
+            if(!block) return;
+            block.style.borderColor = 'var(--border)'; 
+            if (selected) {
+                if (parseInt(selected.value) === q.ans) { score++; block.style.borderColor = 'var(--secondary)'; block.style.backgroundColor = '#f0fdf4'; } 
+                else { block.style.borderColor = 'var(--danger)'; block.style.backgroundColor = '#fef2f2'; }
+            } else { block.style.borderColor = 'var(--danger)'; }
+        });
+
+        currentReadingData.tf.forEach((q, i) => {
+            const selected = document.querySelector(`input[name="tf-${i}"]:checked`);
+            const block = document.querySelector(`input[name="tf-${i}"]`)?.closest('.question-block');
+            if(!block) return;
+            block.style.borderColor = 'var(--border)';
+            if (selected) {
+                if (selected.value === q.ans) { score++; block.style.borderColor = 'var(--secondary)'; block.style.backgroundColor = '#f0fdf4'; } 
+                else { block.style.borderColor = 'var(--danger)'; block.style.backgroundColor = '#fef2f2'; }
+            } else { block.style.borderColor = 'var(--danger)'; }
+        });
+
+        const feedback = document.getElementById('reading-score');
+        feedback.style.display = 'block';
+        let percentage = Math.round((score / total) * 100);
+        let colorClass = percentage >= 80 ? 'grade-excellent' : (percentage >= 50 ? 'grade-warning' : 'grade-poor');
+        feedback.innerHTML = `<div class="${colorClass}">Score: ${score} / ${total} (${percentage}/100)</div>`;
+    }
+
+    // --- WRITING SECTION ---
+    async function generateWritingTopicAI() {
+        if (!hasAPI) return;
+        const loader = document.getElementById('writing-topic-loader');
+        loader.style.display = 'block';
+        document.getElementById('writing-prompt-box').style.display = 'none';
+        document.getElementById('user-essay').value = '';
+        document.getElementById('writing-feedback').style.display = 'none';
+
+        // RNG Logic for difficulty
+        const rand = Math.random() * 100;
+        let difficulty = "Basic (A2)";
+        let instructions = "Give a specific, guiding topic prompt (about 2 sentences) and a simple sample paragraph.";
+        
+        if (rand <= 1.5) { // 1.5% chance for Advanced
+            difficulty = "Advanced (B1)";
+            instructions = "Give a short, open-ended, and slightly abstract topic prompt (max 1 sentence) and a well-structured B1 sample paragraph.";
+        } else if (rand <= 41.5) { // ~40% chance for Intermediate
+            difficulty = "Intermediate (A2-B1)";
+            instructions = "Give a standard topic prompt and a clear sample paragraph.";
+        }
+
+        const historyStr = historyWritingTopics.join(", ");
+        const prompt = `Act as an English teacher. Generate a writing topic (paragraph, 120-150 words) related to Unit 7: Technology in Education / New ways to learn.
+        Difficulty level: ${difficulty}. ${instructions}
+        IMPORTANT: Do NOT use any of these past topics: [${historyStr}].
+        Output strictly in JSON: { "topic": "Write a paragraph...", "sample": "Sample text here..." }`;
+
+        try {
+            const rawRes = await callGemini(prompt);
+            const data = JSON.parse(extractJSON(rawRes));
+            
+            historyWritingTopics.push(data.topic);
+            if(historyWritingTopics.length > 5) historyWritingTopics.shift();
+
+            document.getElementById('writing-topic').innerText = `[${difficulty}] ` + data.topic;
+            document.getElementById('writing-sample').innerText = data.sample;
+            document.getElementById('writing-sample').style.display = 'none';
+            document.getElementById('writing-prompt-box').style.display = 'block';
+        } catch (e) {
+            console.error(e);
+        } finally { loader.style.display = 'none'; }
+    }
+
+    function toggleSample() {
+        const el = document.getElementById('writing-sample');
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function gradeWriting() {
+        const essay = document.getElementById('user-essay').value.trim();
+        if (!essay) { alert("Vui lòng viết bài trước khi chấm!"); return; }
+        if (!hasAPI) return;
+
+        const loader = document.getElementById('writing-loader');
+        const feedback = document.getElementById('writing-feedback');
+        loader.style.display = 'block'; feedback.style.display = 'none';
+
+        const currentSample = document.getElementById('writing-sample').innerText;
+
+        const prompt = `Act as an English teacher grading a student at A2-B1 level.
+        Sample essay provided to student: "${currentSample}"
+        Student's essay: "${essay}"
+
+        Tasks: Check word count. Give a score out of 100. If the student heavily copied the sample essay, score is 0.
+        IMPORTANT: "comments" and "suggestions" MUST BE 100% IN VIETNAMESE. Keep them extremely concise (Max 2 short sentences each). No English in feedback.
+        
+        Output strictly in JSON format:
+        { "score": 85, "comments": "Nhận xét ngắn gọn tiếng Việt.", "suggestions": "Gợi ý ngắn gọn tiếng Việt." }`;
+
+        try {
+            const rawRes = await callGemini(prompt);
+            const data = JSON.parse(extractJSON(rawRes));
+            let colorClass = data.score >= 80 ? 'grade-excellent' : (data.score >= 50 ? 'grade-good' : 'grade-poor');
+
+            feedback.innerHTML = `
+                <div class="score-box ${colorClass}">Score: ${data.score} / 100</div>
+                <div class="ai-comment-section"><h4>📝 Nhận xét của AI:</h4><p>${data.comments}</p></div>
+                <div class="ai-comment-section"><h4>💡 Gợi ý cải thiện:</h4><p>${data.suggestions}</p></div>
+            `;
+            feedback.style.display = 'block';
+        } catch (e) { alert("Lỗi chấm bài: " + e.message); } 
+        finally { loader.style.display = 'none'; }
+    }
+
+    // --- REWRITE SECTION ---
+    let currentRewrites =[];
+
+    async function generateRewriteExercises() {
+        if (!hasAPI) return;
+        const loader = document.getElementById('rewrite-loader');
+        loader.style.display = 'block';
+        document.getElementById('btn-submit-rewrite').style.display = 'none';
+        document.getElementById('rewrite-container').innerHTML = '';
+        document.getElementById('rewrite-global-feedback').style.display = 'none';
+
+        const historyStr = historyRewrites.join(" | ");
+        const prompt = `Generate exactly 5 COMPLETELY NEW sentence transformation exercises focusing on Passive Voice (including special cases like modals, have sth done, 2 objects) for English level B1. Theme: Technology in Education.
+        DO NOT reuse any of these active sentences: [${historyStr}].
+        Output strictly in JSON format:
+        [ {"orig": "Active sentence", "start": "Subject of passive sentence "} ]`;
+
+        try {
+            const rawRes = await callGemini(prompt);
+            currentRewrites = JSON.parse(extractJSON(rawRes));
+            
+            currentRewrites.forEach(r => historyRewrites.push(r.orig));
+            if(historyRewrites.length > 20) historyRewrites.splice(0, 5);
+
+            document.getElementById('rewrite-container').innerHTML = currentRewrites.map((item, i) => `
+                <div class="input-group" style="background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+                    <label>Q${i+1}: ${item.orig}</label>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span style="font-weight: 600;">➔ ${item.start}</span>
+                        <input type="text" id="rw-ans-${i}" style="flex: 1; min-width: 250px;" placeholder="Hoàn thành câu...">
+                    </div>
+                    <div id="rw-feed-${i}" class="vn-text" style="display:none; margin-top: 5px; font-weight: 600;"></div>
+                </div>`).join('');
+            document.getElementById('btn-submit-rewrite').style.display = 'block';
+        } catch (e) { console.error(e); loader.innerHTML = "Lỗi tạo đề. Vui lòng thử lại."; } 
+        finally { if(currentRewrites.length > 0) loader.style.display = 'none'; }
+    }
+
+    async function gradeRewrites() {
+        if (!hasAPI) return;
+        let userAnswers =[];
+        let allEmpty = true;
+        for (let i = 0; i < currentRewrites.length; i++) {
+            let ans = document.getElementById(`rw-ans-${i}`).value.trim();
+            if (ans) allEmpty = false;
+            userAnswers.push({ orig: currentRewrites[i].orig, full_answer: currentRewrites[i].start + " " + ans });
+        }
+
+        if (allEmpty) { alert("Vui lòng làm ít nhất 1 câu!"); return; }
+
+        const loader = document.getElementById('rewrite-loader');
+        loader.style.display = 'block';
+
+        const prompt = `Evaluate these sentence transformations (Active to Passive Voice). Data: ${JSON.stringify(userAnswers)}. 
+        Check if 'full_answer' is grammatically correct and matches the meaning of 'orig'. 
+        IMPORTANT: 'feedback' and 'generalSuggestion' MUST BE ENTIRELY IN VIETNAMESE. Keep feedback under 15 words.
+        Output strictly in JSON:
+        { "results":[ {"isCorrect": true/false, "feedback": "Phản hồi tiếng Việt ngắn gọn"} ], "generalSuggestion": "1 mẹo nhỏ bằng tiếng Việt" }`;
+
+        try {
+            const rawRes = await callGemini(prompt);
+            const data = JSON.parse(extractJSON(rawRes));
+            
+            let correctCount = 0;
+            data.results.forEach((fb, i) => {
+                const feedDiv = document.getElementById(`rw-feed-${i}`);
+                feedDiv.style.display = 'block';
+                if (fb.isCorrect) { correctCount++; feedDiv.style.color = "var(--secondary)"; feedDiv.innerHTML = "✅ Chính xác! " + fb.feedback; } 
+                else { feedDiv.style.color = "var(--danger)"; feedDiv.innerHTML = "❌ Sai. " + fb.feedback; }
+            });
+
+            let finalScore = Math.round((correctCount / currentRewrites.length) * 100);
+            let colorClass = finalScore >= 80 ? 'grade-excellent' : (finalScore >= 50 ? 'grade-good' : 'grade-poor');
+
+            const globalFeed = document.getElementById('rewrite-global-feedback');
+            globalFeed.style.display = 'block';
+            globalFeed.innerHTML = `
+                <div class="score-box ${colorClass}">Điểm: ${finalScore} / 100</div>
+                <p><strong>💡 Mẹo nhỏ:</strong> ${data.generalSuggestion}</p>
+            `;
+        } catch (e) { alert("Lỗi chấm bài: " + e.message); } 
+        finally { loader.style.display = 'none'; }
+    }
+
+    // --- QUIZ SECTION ---
+    let currentQuizData =[];
+
+    async function generateNewQuiz() {
+        if (!hasAPI) return;
+        const loader = document.getElementById('quiz-loader');
+        loader.style.display = 'block';
+        document.getElementById('btn-submit-quiz').style.display = 'none';
+        document.getElementById('quiz-container').innerHTML = '';
+        document.getElementById('quiz-feedback').style.display = 'none';
+
+        const historyStr = historyQuiz.join(" | ");
+        const prompt = `Generate exactly 5 completely new multiple-choice questions (A, B, C, D) focusing on English B1 Grammar (Passive voice, Making suggestions) and Vocabulary (Technology, Online Learning).
+        DO NOT reuse these past questions: [${historyStr}].
+        Output strictly in JSON:[ { "q": "Question?", "options":["A. .", "B. .", "C. .", "D. ."], "ans": 0 } ]`;
+
+        try {
+            const rawRes = await callGemini(prompt);
+            currentQuizData = JSON.parse(extractJSON(rawRes));
+            
+            currentQuizData.forEach(q => historyQuiz.push(q.q));
+            if(historyQuiz.length > 20) historyQuiz.splice(0, 5);
+
+            document.getElementById('quiz-container').innerHTML = currentQuizData.map((q, i) => `
+                <div class="question-block">
+                    <p>${i + 1}. ${q.q}</p>
+                    <ul class="options-list">
+                        ${q.options.map((opt, j) => `<li><label><input type="radio" name="qz-${i}" value="${j}"> ${opt}</label></li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+            document.getElementById('btn-submit-quiz').style.display = 'block';
+        } catch (e) { console.error(e); loader.innerHTML = "Lỗi tạo đề Quiz. Hãy thử lại."; } 
+        finally { if(currentQuizData.length > 0) loader.style.display = 'none'; }
+    }
+
+    function gradeQuiz() {
+        let score = 0;
+        currentQuizData.forEach((q, i) => {
+            const selected = document.querySelector(`input[name="qz-${i}"]:checked`);
+            const block = document.querySelector(`input[name="qz-${i}"]`)?.closest('.question-block');
+            if(!block) return;
+            block.style.borderColor = 'var(--border)';
+            if (selected) {
+                if (parseInt(selected.value) === q.ans) { score++; block.style.borderColor = 'var(--secondary)'; block.style.backgroundColor = '#f0fdf4'; } 
+                else { block.style.borderColor = 'var(--danger)'; block.style.backgroundColor = '#fef2f2'; }
+            } else { block.style.borderColor = 'var(--danger)'; }
+        });
+
+        const feedback = document.getElementById('quiz-feedback');
+        feedback.style.display = 'block';
+        let percentage = Math.round((score / currentQuizData.length) * 100);
+        let colorClass = percentage >= 80 ? 'grade-excellent' : (percentage >= 50 ? 'grade-good' : 'grade-poor');
+        feedback.innerHTML = `<span class="${colorClass}">Score: ${score} / ${currentQuizData.length} (${percentage}/100)</span>`;
+    }
+
+</script>
+
+<!-- ============================================================== -->
+<!-- BẮT ĐẦU PHẦN SCRIPT THÊM VÀO ĐỂ CHỐNG COPY, CHUỘT PHẢI, F12    -->
+<!-- ============================================================== -->
+<script>
+    // 1. Chống chuột phải (Context Menu)
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // 2. Chống bôi đen bằng phím tắt, copy, cut, paste (ngoại trừ khi đang thao tác trong ô input)
+    document.addEventListener('copy', event => {
+        if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') event.preventDefault();
+    });
+    document.addEventListener('cut', event => {
+        if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') event.preventDefault();
+    });
+    document.addEventListener('paste', event => {
+        // Cho phép paste vào ô nhập liệu nếu cần, nếu không muốn cho thì xóa lệnh if này đi
+        // if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') event.preventDefault();
+    });
+    
+    // Ngăn chặn sự kiện bắt đầu bôi đen (ngoại trừ ô nhập liệu)
+    document.addEventListener('selectstart', function(e) {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+        }
+    });
+
+    // 3. Chống các phím tắt mở công cụ phát triển (F12, Ctrl+U, Ctrl+Shift+I...) và phím in/lưu trang
+    document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+I (Mở DevTools)
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+J (Mở DevTools Console)
+        if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+C (Mở Inspect Element)
+        if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c' || e.keyCode === 67)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+U (Xem mã nguồn HTML)
+        if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+S (Lưu trang web)
+        if (e.ctrlKey && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+P (In trang web)
+        if (e.ctrlKey && (e.key === 'P' || e.key === 'p' || e.keyCode === 80)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+<!-- ============================================================== -->
+<!-- KẾT THÚC PHẦN SCRIPT THÊM VÀO                                  -->
+<!-- ============================================================== -->
+
+</body>
+</html>
